@@ -1,3 +1,4 @@
+import sqlalchemy.orm
 from sqlalchemy import create_engine, select, Table, Column, Integer, String, MetaData, ForeignKey, exc
 from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -49,22 +50,59 @@ def save_user_recipe_settings(data):
 
 
 def get_user_recipe_settings_by_user_id(user_id):
-    # chek if user has settings
-    urs = find_user_recipe_settings_by_user_id(user_id)
+    # check if user has settings
+    res = find_user_recipe_settings_by_user_id(user_id)
+    urs = res[0]
+    session = res[1]
     if urs:
-        return urs
+        return urs,session
     else:
         # if doesnt - create new settings (with write to db yet)
-        return create_user_recipe_settings_by_user_id(user_id)
+        res = create_user_recipe_settings_by_user_id(user_id)
+
+        return res[0],res[1]
 
 
 def find_user_recipe_settings_by_user_id(user_id):
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
-    return session.query(UserRecipeSettings).filter_by(user_id=user_id).one()
+    return session.query(UserRecipeSettings).filter_by(user_id=user_id).first(), session
 
 
 def create_user_recipe_settings_by_user_id(user_id):
     DBSession = sessionmaker(bind=engine)
+    new_urs_object = UserRecipeSettings(user_id=user_id)
     session = DBSession()
-    return UserRecipeSettings(user_id=user_id)
+    session.expire_on_commit = False
+    session.add(new_urs_object)
+    session.commit()
+    return new_urs_object, session
+
+
+def update_user_recipe_settings(urs_object: UserRecipeSettings, session: sqlalchemy.orm.session.Session):
+    session.commit()
+
+
+def test(a: UserRecipeSettings, session: sqlalchemy.orm.session.Session):
+
+    session.commit()
+    return a
+
+
+def test2():
+    res = test3()
+    a = res[0]
+    session = res[1]
+    a.ingr="TSAS"
+    test(a, session)
+    print()
+
+def test3():
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    session.expire_on_commit = False
+    # a = session.query(UserRecipeSettings).filter_by(user_id=313781825).first()
+    a = UserRecipeSettings(user_id=12323)
+    session.add(a)
+    session.commit()
+    return a, session
