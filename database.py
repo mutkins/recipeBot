@@ -3,6 +3,8 @@ from sqlalchemy import create_engine, select, Table, Column, Integer, String, Me
 from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
@@ -31,11 +33,17 @@ class UserRecipeSettings(Base):
 
 
     def update_user_recipe_settings(self):
+        session = Session()
         print("ПИШУ ИЗМЕНЕНИЯ В БАЗУ")
+        session.commit()
+        session.close()
 
 
 engine = create_engine("sqlite:///recipe.db", echo=True)
 Base.metadata.create_all(engine)
+
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
 
 def save_user_recipe_settings(data):
@@ -49,27 +57,23 @@ def save_user_recipe_settings(data):
 
 
 def get_user_recipe_settings_by_user_id(user_id):
+    session = Session()
     # check if user has settings
-    urs = find_user_recipe_settings_by_user_id(user_id)
+    urs = find_user_recipe_settings_by_user_id(user_id, session)
     if urs:
         return urs
     else:
         # if doesnt - create new settings (with write to db yet)
-        res = create_user_recipe_settings_by_user_id(user_id)
+        res = create_user_recipe_settings_by_user_id(user_id, session)
         return res
 
 
-def find_user_recipe_settings_by_user_id(user_id):
-    DBSession = sessionmaker(bind=engine)
-    session = DBSession()
+def find_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.session.Session):
     return session.query(UserRecipeSettings).filter_by(user_id=user_id).first()
 
 
-def create_user_recipe_settings_by_user_id(user_id):
-    DBSession = sessionmaker(bind=engine)
+def create_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.session.Session):
     new_urs_object = UserRecipeSettings(user_id=user_id)
-    session = DBSession()
-    session.expire_on_commit = False
     session.add(new_urs_object)
     session.commit()
     return new_urs_object
