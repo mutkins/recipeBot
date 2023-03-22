@@ -36,36 +36,34 @@ class UserRecipeSettings(Base):
 
 engine = create_engine("sqlite:///recipe.db", echo=True)
 Base.metadata.create_all(engine)
-
+DBSession = sessionmaker(bind=engine)
 
 def save_user_recipe_settings(data):
     new_set = UserRecipeSettings(user_id=data.get('user_id'), ingr=data.get('ingr'), diet=data.get('diet'),
                                  health=data.get('health'), cuisineType=data.get('health'),
                                  dishType=data.get('dishType'), time=data.get('time'), excluded=data.get('excluded'))
-    DBSession = sessionmaker(bind=engine)
-    session = DBSession()
-    session.add(new_set)
-    session.commit()
+
 
 
 def get_user_recipe_settings_by_user_id(user_id):
+    session = DBSession()
     # check if user has settings
-    urs = find_user_recipe_settings_by_user_id(user_id)
+    urs = find_user_recipe_settings_by_user_id(user_id, session)
     if urs:
         return urs
     else:
         # if doesnt - create new settings (with write to db yet)
-        res = create_user_recipe_settings_by_user_id(user_id)
-        return res
+        res = create_user_recipe_settings_by_user_id(user_id, session)
+        return res, session
 
 
-def find_user_recipe_settings_by_user_id(user_id):
+def find_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.session.Session):
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     return session.query(UserRecipeSettings).filter_by(user_id=user_id).first()
 
 
-def create_user_recipe_settings_by_user_id(user_id):
+def create_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.session.Session):
     DBSession = sessionmaker(bind=engine)
     new_urs_object = UserRecipeSettings(user_id=user_id)
     session = DBSession()
