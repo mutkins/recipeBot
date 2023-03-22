@@ -30,9 +30,8 @@ class UserRecipeSettings(Base):
     #     self.excluded = excluded
 
 
-    def update_user_recipe_settings(self, user_id, ingr=None, diet=None, health=None, cuisineType=None, dishType=None, time=None, excluded=None):
-        DBSession = sessionmaker(bind=engine)
-        session = DBSession()
+    def update_user_recipe_settings(self):
+        print("ПИШУ ИЗМЕНЕНИЯ В БАЗУ")
 
 
 engine = create_engine("sqlite:///recipe.db", echo=True)
@@ -51,22 +50,19 @@ def save_user_recipe_settings(data):
 
 def get_user_recipe_settings_by_user_id(user_id):
     # check if user has settings
-    res = find_user_recipe_settings_by_user_id(user_id)
-    urs = res[0]
-    session = res[1]
+    urs = find_user_recipe_settings_by_user_id(user_id)
     if urs:
-        return urs,session
+        return urs
     else:
         # if doesnt - create new settings (with write to db yet)
         res = create_user_recipe_settings_by_user_id(user_id)
-
-        return res[0],res[1]
+        return res
 
 
 def find_user_recipe_settings_by_user_id(user_id):
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
-    return session.query(UserRecipeSettings).filter_by(user_id=user_id).first(), session
+    return session.query(UserRecipeSettings).filter_by(user_id=user_id).first()
 
 
 def create_user_recipe_settings_by_user_id(user_id):
@@ -76,11 +72,11 @@ def create_user_recipe_settings_by_user_id(user_id):
     session.expire_on_commit = False
     session.add(new_urs_object)
     session.commit()
-    return new_urs_object, session
+    return new_urs_object
 
 
-def update_user_recipe_settings(urs_object: UserRecipeSettings, session: sqlalchemy.orm.session.Session):
-    session.commit()
+# def update_user_recipe_settings(urs_object: UserRecipeSettings, session: sqlalchemy.orm.session.Session):
+#     session.commit()
 
 
 def test(a: UserRecipeSettings, session: sqlalchemy.orm.session.Session):

@@ -23,7 +23,7 @@ class SettingsFSM (StatesGroup):
 
 # @dp.message_handler(commands=['setings'], state='*')
 async def settings_command(message: types.Message):
-    urs_object = database.get_user_recipe_settings_by_user_id(message.from_user.id)[0]
+    urs_object = database.get_user_recipe_settings_by_user_id(message.from_user.id)
     await message.answer(f"Текущие настройки:\n"
                          f"Количество ингридиентов в рецептах (/ingr): {urs_object.ingr}\n"
                          f"Тип диеты (/diet): {urs_object.diet}\n"
@@ -44,12 +44,10 @@ async def ingr_command(message: types.Message, state: FSMContext):
 
 # @dp.message_handler(state=SettingsFSM.ingr_input)
 async def ingr_input(message: types.Message, state: FSMContext):
-    res = database.get_user_recipe_settings_by_user_id(message.from_user.id)
-    urs_object = res[0]
-    session = res[1]
+    urs_object = database.get_user_recipe_settings_by_user_id(message.from_user.id)
     async with state.proxy() as data:
         urs_object.ingr = message.text
-        database.update_user_recipe_settings(urs_object,session)
+        urs_object.update_user_recipe_settings()
     await settings_command(message)
 
 
