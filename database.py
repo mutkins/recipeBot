@@ -6,8 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 engine = create_engine("sqlite:///recipe.db", echo=True)
-Base.metadata.create_all(engine)
-DBSession = sessionmaker(bind=engine)
 
 # при создании класса создается таблица сразу, а если существует - то подключается к ней
 class UserRecipeSettings(Base):
@@ -31,6 +29,8 @@ class UserRecipeSettings(Base):
     #     self.time = time
     #     self.excluded = excluded
 
+Base.metadata.create_all(engine)
+DBSession = sessionmaker(bind=engine)
 
 def get_user_recipe_settings_by_user_id(user_id):
     session = DBSession()
@@ -38,8 +38,8 @@ def get_user_recipe_settings_by_user_id(user_id):
     urs = find_user_recipe_settings_by_user_id(user_id, session)
     if not urs:
         create_user_recipe_settings_by_user_id(user_id, session)
-        get_user_recipe_settings_by_user_id(user_id)
-    return [urs, session]
+        urs, session = get_user_recipe_settings_by_user_id(user_id)
+    return urs, session
 
 
 def find_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.session.Session):

@@ -12,6 +12,7 @@ async def send_welcome(message: types.Message):
                         "/setings\n")
 
 
+
 # You can use state '*' if you need to handle all states
 # @dp.message_handler(state='*', commands='cancel')
 async def cancel_handler(message: types.Message, state: FSMContext):
