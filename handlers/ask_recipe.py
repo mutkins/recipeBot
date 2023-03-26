@@ -10,6 +10,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from aiogram.utils import executor
 from dotenv import load_dotenv
+
+import keyboards
+import tools
 from create_bot import dp, bot
 
 
@@ -20,20 +23,16 @@ class AskFSM(StatesGroup):
     fourth = State()
 
 
-
-
-# @dp.message_handler(commands=['ask_recipe'], state=None)
 async def ask_recipe(message: types.Message):
     print(f"async def ask_recipe {message.text}")
+    await message.answer("Выберите тип блюда", reply_markup=keyboards.get_dish_types_kb())
     await AskFSM.meal_type.set()
-    await message.answer("Breakfast, Lunch, Dinner, Snack, Teatime\n/cancel - отменить всё")
 
 
-# @dp.message_handler(state=AskFSM.meal_type)
 async def meal_type(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['meal_type'] = message.text
-    print(f"async def kind_of_meal {message.text}")
+    await message.answer("Вот что я могу предложить", reply_markup=keyboards.get_dish_types_kb())
     await state.finish()
 
 

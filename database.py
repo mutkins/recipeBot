@@ -2,15 +2,16 @@ import sqlalchemy.orm
 from sqlalchemy import create_engine, select, Table, Column, Integer, String, MetaData, ForeignKey, exc
 from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy import func
 
 Base = declarative_base()
-engine = create_engine("sqlite:///recipe.db", echo=True)
+engine = create_engine("sqlite:///recipeBot.db", echo=True)
+
 
 # при создании класса создается таблица сразу, а если существует - то подключается к ней
 class UserRecipeSettings(Base):
     __tablename__ = 'UserRecipeSettings'
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(String(250), primary_key=True)
     ingr = Column(String(250), nullable=True)
     diet = Column(String(250), nullable=True)
     health = Column(String(250), nullable=True)
@@ -31,6 +32,7 @@ class UserRecipeSettings(Base):
 
 Base.metadata.create_all(engine)
 DBSession = sessionmaker(bind=engine)
+
 
 def get_user_recipe_settings_by_user_id(user_id):
     session = DBSession()
@@ -55,3 +57,7 @@ def create_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.sess
 def update_user_recipe_settings(session: sqlalchemy.orm.session.Session):
     session.commit()
     session.close()
+
+
+
+
