@@ -2,7 +2,12 @@ import sqlalchemy.orm
 from sqlalchemy import create_engine, select, Table, Column, Integer, String, MetaData, ForeignKey, exc
 from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import logging
 
+# Configure loggingingredient
+logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
+                    format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger("main")
 
 Base = declarative_base()
 engine = create_engine("sqlite:///eda_ru.db", echo=True)
@@ -33,6 +38,7 @@ class Recipe(Base):
         except:
             session.rollback()
             session.close()
+            raise
     # def __init__(self, id=None, title=None, recipe_url=None, recipe_img_url=None, dish_type=None, cuisine_type=None,
     #              count_of_portions=None, time=None):
     #     self.id = id
@@ -62,6 +68,7 @@ class Ingredients(Base):
         except:
             session.rollback()
             session.close()
+            raise
     # def __init__(self, id=None, name=None, quantity=None):
     #     self.id = id
     #     self.name = name

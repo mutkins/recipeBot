@@ -4,6 +4,8 @@ from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
+import database
+import UserRecipeRequest
 
 Base = declarative_base()
 engine = create_engine("sqlite:///recipeBot.db", echo=True)
@@ -67,4 +69,10 @@ def get_dish_types_all():
     return session.query(Recipe.dish_type, func.count(Recipe.dish_type)).\
         group_by(Recipe.dish_type).order_by(desc(func.count(Recipe.dish_type))).all()
 
+
 # ТУТ функция получения рецептов
+def get_recipes(urr: UserRecipeRequest, urs: database.UserRecipeSettings=None):
+    session = DBSession()
+    res = session.query(Recipe).filter(Recipe.dish_type == urr.dish_type).order_by(desc(Recipe.likes)).first()
+    print()
+    return res.title

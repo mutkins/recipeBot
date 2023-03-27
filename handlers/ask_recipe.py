@@ -11,13 +11,15 @@ from aiogram.types import ParseMode
 from aiogram.utils import executor
 from dotenv import load_dotenv
 
+import RecipesDB
+import UserRecipeRequest
 import keyboards
 import tools
 from create_bot import dp, bot
 
 
 class AskFSM(StatesGroup):
-    meal_type = State()
+    dish_type = State()
     second = State()
     third = State()
     fourth = State()
@@ -25,17 +27,20 @@ class AskFSM(StatesGroup):
 
 async def ask_recipe(message: types.Message):
     print(f"async def ask_recipe {message.text}")
+
     await message.answer("Выберите тип блюда", reply_markup=keyboards.get_dish_types_kb())
-    await AskFSM.meal_type.set()
+    await AskFSM.dish_type.set()
 
 
-async def meal_type(message: types.Message, state: FSMContext):
+async def dish_type(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['meal_type'] = message.text
-    await message.answer("Вот что я могу предложить", reply_markup=keyboards.get_dish_types_kb())
+        data['dish_type'] = message.text
+        new_urr = UserRecipeRequest.get_user_recipe_request(user_id=message.from_user.id, dish_type=data['dish_type'])
+        res = RecipesDB.get_recipes(urr=new_urr)
+    await message.answer(f"Вот что я могу предложить:\n {res}")
     await state.finish()
 
 
 def register_handlers(dp: Dispatcher):
     dp.register_message_handler(ask_recipe, commands=['ask_recipe'], state=None)
-    dp.register_message_handler(meal_type, state=AskFSM.meal_type)
+    dp.register_message_handler(dish_type, state=AskFSM.dish_type)

@@ -88,7 +88,7 @@ while True:
             log.debug(f"try to add recipe to DB")
             recipe.add_item()
         except Exception as e:
-            log.debug(f"ADD TO DB {recipe.title} FAILED. Ingredients wont be added. {e} \n\n")
+            log.error(f"ADD TO DB {recipe.title} FAILED. Ingredients wont be added. {e} \n\n")
             continue
 
         try:
@@ -123,9 +123,8 @@ while True:
             try:
                 log.debug(f"try to add ingredient to DB")
                 ingredient.add_item()
-            except:
-                log.debug(f"ADD TO DB {ingredient.name} FAILED!!!! {e}\n\n")
-                pass
+            except Exception as e:
+                log.error(f"ADD TO DB {ingredient.name} FAILED!!!! {e}\n\n")
         try:
             recipe_div.find_element(By.CLASS_NAME, 'emotion-14tqfr').click()
         except:
