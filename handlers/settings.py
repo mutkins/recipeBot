@@ -1,17 +1,7 @@
-import configparser
-import logging
-import os
-import aiogram.utils.markdown as md
-from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ParseMode
-from aiogram.utils import executor
-from dotenv import load_dotenv
-from create_bot import dp, bot
-import database
+from classes import UserRecipeSettings
 
 
 class SettingsFSM (StatesGroup):
@@ -26,7 +16,7 @@ class SettingsFSM (StatesGroup):
 
 
 async def settings_command(message: types.Message):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     await message.answer(f"Текущие настройки:\n"
                          f"Количество ингридиентов в рецептах (/ingr): {urs_object.ingr}\n"
                          f"Тип диеты (/diet): {urs_object.diet}\n"
@@ -45,7 +35,7 @@ async def ingr_command(message: types.Message, state: FSMContext):
 
 
 async def ingr_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.ingr = message.text
     database.update_user_recipe_settings(session)
     await settings_command(message)
@@ -57,9 +47,9 @@ async def diet_command(message: types.Message, state: FSMContext):
 
 
 async def diet_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.diet = message.text
-    database.update_user_recipe_settings(session)
+    UserRecipeSettings.update_user_recipe_settings(session)
     await settings_command(message)
 
 
@@ -69,9 +59,9 @@ async def health_command(message: types.Message, state: FSMContext):
 
 
 async def health_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.health = message.text
-    database.update_user_recipe_settings(session)
+    UserRecipeSettings.update_user_recipe_settings(session)
     await settings_command(message)
 
 
@@ -81,9 +71,9 @@ async def cuisineType_command(message: types.Message, state: FSMContext):
 
 
 async def cuisineType_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.cuisineType = message.text
-    database.update_user_recipe_settings(session)
+    UserRecipeSettings.update_user_recipe_settings(session)
     await settings_command(message)
 
 
@@ -93,7 +83,7 @@ async def dishType_command(message: types.Message, state: FSMContext):
 
 
 async def dishType_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.dishType = message.text
     database.update_user_recipe_settings(session)
     await settings_command(message)
@@ -105,9 +95,9 @@ async def time_command(message: types.Message, state: FSMContext):
 
 
 async def time_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.time = message.text
-    database.update_user_recipe_settings(session)
+    UserRecipeSettings.update_user_recipe_settings(session)
     await settings_command(message)
 
 
@@ -117,9 +107,9 @@ async def excluded_command(message: types.Message, state: FSMContext):
 
 
 async def excluded_input(message: types.Message, state: FSMContext):
-    urs_object, session = database.get_user_recipe_settings_by_user_id(message.from_user.id)
+    urs_object, session = UserRecipeSettings.get_user_recipe_settings_by_user_id(message.from_user.id)
     urs_object.excluded = message.text
-    database.update_user_recipe_settings(session)
+    UserRecipeSettings.update_user_recipe_settings(session)
     await settings_command(message)
 
 

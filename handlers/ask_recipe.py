@@ -1,21 +1,10 @@
-import configparser
-import logging
-import os
-import aiogram.utils.markdown as md
-from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ParseMode
-from aiogram.utils import executor
-from dotenv import load_dotenv
 
-import RecipesDB
-import UserRecipeRequest
-import keyboards
 import tools
-from create_bot import dp, bot
+from classes import UserRecipeRequest, RecipesDB
+import keyboards
 
 
 class AskFSM(StatesGroup):
@@ -37,7 +26,8 @@ async def dish_type(message: types.Message, state: FSMContext):
         data['dish_type'] = message.text
         new_urr = UserRecipeRequest.get_user_recipe_request(user_id=message.from_user.id, dish_type=data['dish_type'])
         res = RecipesDB.get_recipes(urr=new_urr)
-    await message.answer(f"Вот что я могу предложить:\n {res}")
+        r = tools.convert_recipe_obj_to_message(res)
+    await message.answer_photo(**r)
     await state.finish()
 
 

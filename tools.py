@@ -1,9 +1,20 @@
-import RecipesDB
+import random
+import classes
+from classes.RecipesDB import Recipe
+def get_random_item_from_list(lst):
+    r = random.randrange(0, lst.__len__())
+    return lst[r]
 
 
-def get_available_dish_types():
-    dish_types = RecipesDB.get_dish_types_all()
-    dish_types_list = []
-    for i in range(dish_types.__len__()):
-        dish_types_list.append(dish_types[i][0])
-    return dish_types_list
+def convert_recipe_obj_to_message(recipe: Recipe):
+
+    d = {
+        'photo': recipe.recipe_img_url,
+        'caption': f'<b><a href="{recipe.recipe_url}">{recipe.title}</a></b>',
+        'parse_mode': 'HTML'
+    }
+    return d
+
+
+
+

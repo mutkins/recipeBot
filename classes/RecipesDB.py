@@ -1,11 +1,11 @@
-import sqlalchemy.orm
-from sqlalchemy import create_engine, select, Table, Column, Integer, String, MetaData, ForeignKey, exc
-from sqlalchemy.orm import mapper, relationship, sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
-import database
-import UserRecipeRequest
+
+import tools
+from classes import UserRecipeRequest, UserRecipeSettings
 
 Base = declarative_base()
 engine = create_engine("sqlite:///recipeBot.db", echo=True)
@@ -30,16 +30,6 @@ class Recipe(Base):
         session.add(self)
         session.commit()
         session.close()
-    # def __init__(self, id=None, title=None, recipe_url=None, recipe_img_url=None, dish_type=None, cuisine_type=None,
-    #              count_of_portions=None, time=None):
-    #     self.id = id
-    #     self.title = title
-    #     self.recipe_url = recipe_url
-    #     self.recipe_img_url = recipe_img_url
-    #     self.dish_type = dish_type
-    #     self.cuisine_type = cuisine_type
-    #     self.count_of_portions = count_of_portions
-    #     self.time = time
 
 
 class Ingredients(Base):
@@ -54,10 +44,6 @@ class Ingredients(Base):
         session.add(self)
         session.commit()
         session.close()
-    # def __init__(self, id=None, name=None, quantity=None):
-    #     self.id = id
-    #     self.name = name
-    #     self.quantity = quantity
 
 
 Base.metadata.create_all(engine)
@@ -71,8 +57,17 @@ def get_dish_types_all():
 
 
 # ТУТ функция получения рецептов
-def get_recipes(urr: UserRecipeRequest, urs: database.UserRecipeSettings=None):
+def get_recipes(urr: UserRecipeRequest, urs: UserRecipeSettings=None):
     session = DBSession()
-    res = session.query(Recipe).filter(Recipe.dish_type == urr.dish_type).order_by(desc(Recipe.likes)).first()
-    print()
-    return res.title
+    recipe_list =\
+        session.query(Recipe).filter(Recipe.dish_type == urr.dish_type).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    recipe = tools.get_random_item_from_list(recipe_list)
+    return recipe
+
+
+def get_available_dish_types():
+    dish_types = get_dish_types_all()
+    dish_types_list = []
+    for i in range(dish_types.__len__()):
+        dish_types_list.append(dish_types[i][0])
+    return dish_types_list
