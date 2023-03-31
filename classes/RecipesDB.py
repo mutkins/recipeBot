@@ -71,3 +71,9 @@ def get_available_dish_types():
     for i in range(dish_types.__len__()):
         dish_types_list.append(dish_types[i][0])
     return dish_types_list
+
+
+def get_ingredients_by_recipe(recipe: Recipe):
+    session = DBSession()
+    ingredients_list = session.query(Ingredients).filter(Ingredients.recipe_id == recipe.id).all()
+    return ingredients_list
