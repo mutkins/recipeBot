@@ -4,7 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
 
-import tools
+
+
+# import tools
 from classes import UserRecipeRequest, UserRecipeSettings
 
 Base = declarative_base()
@@ -77,3 +79,10 @@ def get_ingredients_by_recipe(recipe: Recipe):
     session = DBSession()
     ingredients_list = session.query(Ingredients).filter(Ingredients.recipe_id == recipe.id).all()
     return ingredients_list
+
+
+def get_recipes_by_query(text):
+    session = DBSession()
+    recipe_list = session.query(Recipe).filter(Recipe.title.ilike('%Сырники%')).all()
+    session.close()
+    return recipe_list
