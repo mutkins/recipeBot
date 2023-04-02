@@ -1,15 +1,18 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
+import keyboards
 from create_bot import dp, bot
 
 
 # @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
 
-    await message.answer("Книга рецептов подскажет что приготовить\nКоманды:\n"
-                        "/ask_recipe\n"
-                        "/setings\n")
+    await message.answer("<b>Книга рецептов подскажет что приготовить</b>\n"
+                         "Для поиска по типу блюда: /тип_блюда\n"
+                         "Для свободного поиска - просто напишите свой запрос (можно писать название рецепта,"
+                         " часть названия, главный ингредиент, и так далее)"
+                         , reply_markup=keyboards.get_welcome_kb(),parse_mode="HTML")
 
 
 
@@ -26,11 +29,11 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     # Cancel state and inform user about it
     await state.finish()
     # And remove keyboard (just in case)
-    await message.answer('Cancelled')
+    await send_welcome(message)
 
 
 def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(send_welcome, commands=['start', 'help'])
-    dp.register_message_handler(cancel_handler, state='*', commands='cancel')
+    dp.register_message_handler(send_welcome, commands=['start', 'help', 'хелп'])
+    dp.register_message_handler(cancel_handler, state='*', commands='отмена')
 
 

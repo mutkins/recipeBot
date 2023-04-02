@@ -10,7 +10,7 @@ logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
 log = logging.getLogger("main")
 
 Base = declarative_base()
-engine = create_engine("sqlite:///eda_ru.db", echo=True)
+engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/recipeDB", echo=True)
 
 
 class Recipe(Base):
