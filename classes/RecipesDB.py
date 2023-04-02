@@ -3,19 +3,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
-
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_searchable import make_searchable
-from sqlalchemy_utils.types import TSVectorType
-from sqlalchemy_searchable import search
 from snowball import Stemmer
 import tools
 
 from classes import UserRecipeRequest, UserRecipeSettings
 
 Base = declarative_base()
-make_searchable(metadata=Base.metadata)
+
 
 
 
@@ -32,7 +26,7 @@ class Recipe(Base):
     time_int = Column(Integer, nullable=True)
     bookmarks = Column(Integer, nullable=True)
     likes = Column(Integer, nullable=True)
-    search_vector = sa.Column(TSVectorType('title'))
+
 
     def add_item(self):
         session = DBSession()
