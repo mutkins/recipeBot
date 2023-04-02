@@ -4,13 +4,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
 
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_utils.types import TSVectorType
+from sqlalchemy_searchable import search
+from snowball import Stemmer
+import tools
 
-
-# import tools
 from classes import UserRecipeRequest, UserRecipeSettings
 
 Base = declarative_base()
-engine = create_engine("sqlite:///recipeBot.db", echo=True)
+make_searchable(metadata=Base.metadata)
+
 
 
 class Recipe(Base):
@@ -26,6 +32,8 @@ class Recipe(Base):
     time_int = Column(Integer, nullable=True)
     bookmarks = Column(Integer, nullable=True)
     likes = Column(Integer, nullable=True)
+    search_vector = sa.Column(TSVectorType('title'))
+
     def add_item(self):
         session = DBSession()
         session.expire_on_commit = False
@@ -40,6 +48,7 @@ class Ingredients(Base):
     recipe_id = Column(String(250), nullable=True)
     name = Column(String(250), nullable=True)
     quantity = Column(String(250), nullable=True)
+
     def add_item(self):
         session = DBSession()
         session.expire_on_commit = False
@@ -48,7 +57,11 @@ class Ingredients(Base):
         session.close()
 
 
+engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/recipeDB", echo=True)
+sa.orm.configure_mappers()
 Base.metadata.create_all(engine)
+
+
 DBSession = sessionmaker(bind=engine)
 
 
@@ -83,6 +96,8 @@ def get_ingredients_by_recipe(recipe: Recipe):
 
 def get_recipes_by_query(text):
     session = DBSession()
-    recipe_list = session.query(Recipe).filter(Recipe.title.ilike('%Сырники%')).all()
-    session.close()
-    return recipe_list
+    st = Stemmer()
+    stem = st.stem(text)
+    recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    recipe = tools.get_random_item_from_list(recipe_list)
+    return recipe

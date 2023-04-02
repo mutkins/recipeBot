@@ -3,7 +3,7 @@ import uuid
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import classes
+import classes.RecipesDB
 import logging
 
 import tools
@@ -30,7 +30,7 @@ while True:
         break
 
     for recipe_div in recipe_divs:
-        recipe = classes.Recipe()
+        recipe = classes.RecipesDB.Recipe()
         log.debug(f"CREATE NEW RECIPE...\n\n\n")
         recipe.id = str(uuid.uuid4())
         log.debug(f"recipe.id {recipe.id}")
@@ -103,7 +103,7 @@ while True:
             pass
 
         for ingr_div in ingredient_divs:
-            ingredient = classes.Ingredients()
+            ingredient = classes.RecipesDB.Ingredients()
             ingredient.id = str(uuid.uuid4())
             try:
                 ingredient.recipe_id = recipe.id
