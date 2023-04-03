@@ -97,7 +97,7 @@ def get_recipe_list_by_query(query):
     stem = st.stem(query)
     recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(
         50).all()
-    return recipe
+    return recipe_list
 
 
 def get_recipe_list_by_dish_type(dish_type):

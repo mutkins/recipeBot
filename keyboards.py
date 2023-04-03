@@ -27,7 +27,7 @@ def get_another_one_kb():
 
 def get_welcome_kb():
     kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    button = KeyboardButton('/тип_блюда')
+    button = KeyboardButton('/каталог')
     kb.add(button)
     button = KeyboardButton('/мои_рецепты')
     kb.add(button)
