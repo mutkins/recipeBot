@@ -1,3 +1,6 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -5,12 +8,13 @@ from sqlalchemy import func
 from sqlalchemy import desc
 from snowball import Stemmer
 import tools
+from dotenv import load_dotenv
 
 from classes import UserRecipeRequest, UserRecipeSettings
 
 Base = declarative_base()
 
-
+load_dotenv()
 
 
 class Recipe(Base):
@@ -51,8 +55,7 @@ class Ingredients(Base):
         session.close()
 
 
-engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/recipeDB", echo=True)
-sa.orm.configure_mappers()
+engine = create_engine(f"postgresql+psycopg2://postgres:{os.environ.get('postgres_pass')}@localhost:5432/recipeDB", echo=True)
 Base.metadata.create_all(engine)
 
 
@@ -88,10 +91,15 @@ def get_ingredients_by_recipe(recipe: Recipe):
     return ingredients_list
 
 
-def get_recipes_by_query(text):
+def get_recipes_by_query(query=None, dish_type=None):
     session = DBSession()
     st = Stemmer()
-    stem = st.stem(text)
-    recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    stem = st.stem(query)
+    if dish_type:
+        recipe_list = session.query(Recipe).\
+            filter(Recipe.dish_type == dish_type).\
+            filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    else:
+        recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
     recipe = tools.get_random_item_from_list(recipe_list)
     return recipe

@@ -1,11 +1,12 @@
+import os
 import sqlalchemy.orm
 from sqlalchemy import create_engine, select, Table, Column, Integer, String, MetaData, ForeignKey, exc
 from sqlalchemy.orm import mapper, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
-
+from dotenv import load_dotenv
 Base = declarative_base()
-engine = create_engine("sqlite:///recipeBot.db", echo=True)
+load_dotenv()
 
 
 # при создании класса создается таблица сразу, а если существует - то подключается к ней
@@ -30,6 +31,8 @@ class UserRecipeSettings(Base):
     #     self.time = time
     #     self.excluded = excluded
 
+
+engine = create_engine(f"postgresql+psycopg2://postgres:{os.environ.get('postgres_pass')}@localhost:5432/recipeDB", echo=True)
 Base.metadata.create_all(engine)
 DBSession = sessionmaker(bind=engine)
 

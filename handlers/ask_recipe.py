@@ -27,8 +27,8 @@ async def send_recipe_by_dish_type(message: types.Message, state: FSMContext):
             data['dish_type'] = message.text
         # Creatr new user recipe request object. It keeps data about
         new_urr = UserRecipeRequest.get_user_recipe_request(user_id=message.from_user.id, dish_type=data['dish_type'])
-        urs = UserRecipeSettings.get_user_recipe_settings_by_user_id(user_id=message.from_user.id)
-        recipe = RecipesDB.get_recipes(urr=new_urr, urs=urs)
+        # urs = UserRecipeSettings.get_user_recipe_settings_by_user_id(user_id=message.from_user.id)
+        recipe = RecipesDB.get_recipes(urr=new_urr)
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
         r = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
     await message.answer_photo(**r, reply_markup=keyboards.get_another_one_kb())
@@ -41,8 +41,7 @@ async def send_recipe_by_query(message: types.Message, state: FSMContext):
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('query' in data):
             data['query'] = message.text
-        # Create new user recipe request object. It keeps data about
-        recipe = RecipesDB.get_recipes_by_query(data['query'])
+        recipe = RecipesDB.get_recipes_by_query(query=data.get('query'), dish_type=data.get('dish_type'))
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
         r = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
     await message.answer_photo(**r, reply_markup=keyboards.get_another_one_kb())
@@ -61,5 +60,5 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(finish, state=AskFSM.another_one, commands=['ок'])
     dp.register_message_handler(finish, state=AskFSM.another_one_query, commands=['ок'])
     dp.register_message_handler(send_recipe_by_query, state=AskFSM.another_one_query, commands=['еще_вариант'])
-    dp.register_message_handler(send_recipe_by_query, state=None)
-
+    dp.register_message_handler(send_recipe_by_query, state=AskFSM.another_one)
+    dp.register_message_handler(send_recipe_by_query, states=None)
