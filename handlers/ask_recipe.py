@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import tools
-from classes import UserRecipeRequest, RecipesDB, UserRecipeSettings
+from classes import RecipesDB
 import keyboards
 
 
@@ -26,9 +26,8 @@ async def send_recipe_by_dish_type(message: types.Message, state: FSMContext):
         if not ('dish_type' in data):
             data['dish_type'] = message.text
         # Creatr new user recipe request object. It keeps data about
-        new_urr = UserRecipeRequest.get_user_recipe_request(user_id=message.from_user.id, dish_type=data['dish_type'])
-        # urs = UserRecipeSettings.get_user_recipe_settings_by_user_id(user_id=message.from_user.id)
-        recipe = RecipesDB.get_recipes(urr=new_urr)
+
+        recipe = RecipesDB.get_recipe(dish_type=data.get('dish_type'))
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
         r = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
     await message.answer_photo(**r, reply_markup=keyboards.get_another_one_kb())
@@ -41,7 +40,7 @@ async def send_recipe_by_query(message: types.Message, state: FSMContext):
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('query' in data):
             data['query'] = message.text
-        recipe = RecipesDB.get_recipes_by_query(query=data.get('query'), dish_type=data.get('dish_type'))
+        recipe = RecipesDB.get_recipe(query=data.get('query'), dish_type=data.get('dish_type'))
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
         r = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
     await message.answer_photo(**r, reply_markup=keyboards.get_another_one_kb())

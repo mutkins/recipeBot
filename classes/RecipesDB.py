@@ -10,8 +10,6 @@ from snowball import Stemmer
 import tools
 from dotenv import load_dotenv
 
-from classes import UserRecipeRequest, UserRecipeSettings
-
 Base = declarative_base()
 
 load_dotenv()
@@ -68,15 +66,6 @@ def get_dish_types_all():
         group_by(Recipe.dish_type).order_by(desc(func.count(Recipe.dish_type))).all()
 
 
-# ТУТ функция получения рецептов
-def get_recipes(urr: UserRecipeRequest, urs: UserRecipeSettings=None):
-    session = DBSession()
-    recipe_list =\
-        session.query(Recipe).filter(Recipe.dish_type == urr.dish_type).order_by(desc(Recipe.bookmarks)).limit(50).all()
-    recipe = tools.get_random_item_from_list(recipe_list)
-    return recipe
-
-
 def get_available_dish_types():
     dish_types = get_dish_types_all()
     dish_types_list = []
@@ -91,15 +80,44 @@ def get_ingredients_by_recipe(recipe: Recipe):
     return ingredients_list
 
 
-def get_recipes_by_query(query=None, dish_type=None):
+def get_recipe(query=None, dish_type=None):
+    if query and not dish_type:
+        recipe_list = get_recipe_list_by_query(query=query)
+    if dish_type and not query:
+        recipe_list = get_recipe_list_by_dish_type(dish_type=dish_type)
+    if query and dish_type:
+        recipe_list = get_recipe_list_by_query_and_dish_type(query=query, dish_type=dish_type)
+    recipe = tools.get_random_item_from_list(recipe_list)
+    return recipe
+
+
+def get_recipe_list_by_query(query):
     session = DBSession()
     st = Stemmer()
     stem = st.stem(query)
-    if dish_type:
-        recipe_list = session.query(Recipe).\
-            filter(Recipe.dish_type == dish_type).\
-            filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
-    else:
-        recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
-    recipe = tools.get_random_item_from_list(recipe_list)
+    recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(
+        50).all()
     return recipe
+
+
+def get_recipe_list_by_dish_type(dish_type):
+    session = DBSession()
+    recipe_list = session.query(Recipe).filter(Recipe.dish_type == dish_type).order_by(desc(Recipe.bookmarks)).limit(
+        50).all()
+    return recipe_list
+
+
+def get_recipe_list_by_query_and_dish_type(query, dish_type):
+    session = DBSession()
+    st = Stemmer()
+    stem = st.stem(query)
+    recipe_list = session.query(Recipe).\
+        filter(Recipe.dish_type == dish_type).\
+        filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    return recipe_list
+
+
+
+
+
+
