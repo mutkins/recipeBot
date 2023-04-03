@@ -25,8 +25,6 @@ async def send_recipe_by_dish_type(message: types.Message, state: FSMContext):
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('dish_type' in data):
             data['dish_type'] = message.text
-        # Creatr new user recipe request object. It keeps data about
-
         recipe = RecipesDB.get_recipe(dish_type=data.get('dish_type'))
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
         r = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
