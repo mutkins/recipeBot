@@ -108,6 +108,7 @@ def get_recipe_list_by_query(query):
     stem = st.stem(query)
     recipe_list = session.query(Recipe).filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(
         50).all()
+    session.close()
     return recipe_list
 
 
@@ -115,6 +116,7 @@ def get_recipe_list_by_dish_type(dish_type):
     session = DBSession()
     recipe_list = session.query(Recipe).filter(Recipe.dish_type == dish_type).order_by(desc(Recipe.bookmarks)).limit(
         50).all()
+    session.close()
     return recipe_list
 
 
@@ -125,6 +127,7 @@ def get_recipe_list_by_query_and_dish_type(query, dish_type):
     recipe_list = session.query(Recipe).\
         filter(Recipe.dish_type == dish_type).\
         filter(Recipe.title.ilike(f'%{stem}%')).order_by(desc(Recipe.bookmarks)).limit(50).all()
+    session.close()
     return recipe_list
 
 

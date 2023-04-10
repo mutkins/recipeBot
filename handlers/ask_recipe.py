@@ -33,7 +33,12 @@ async def send_recipe_by_dish_type(message: types.Message, state: FSMContext):
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('dish_type' in data):
             data['dish_type'] = message.text
-        answ = get_recipe_and_ingredients(data)
+        try:
+            answ = get_recipe_and_ingredients(data)
+        except ValueError as e:
+            await message.answer(text=e.args[0])
+            await common.cancel_handler(message, state)
+
     await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
     await AskFSM.dish_type.set()
 
@@ -44,7 +49,11 @@ async def send_recipe_by_dish_type_by_query(message: types.Message, state: FSMCo
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('query' in data):
             data['query'] = message.text
-        answ = get_recipe_and_ingredients(data)
+        try:
+            answ = get_recipe_and_ingredients(data)
+        except ValueError as e:
+            await message.answer(text=e.args[0])
+            await common.cancel_handler(message, state)
     await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
     await AskFSM.dish_type_query.set()
 
@@ -55,7 +64,11 @@ async def send_recipe_by_query(message: types.Message, state: FSMContext):
         # Try if it's another_one status - use existing data, else - create new from the message
         if not ('query' in data):
             data['query'] = message.text
-        answ = get_recipe_and_ingredients(data)
+        try:
+            answ = get_recipe_and_ingredients(data)
+        except ValueError as e:
+            await message.answer(text=e.args[0])
+            await common.cancel_handler(message, state)
     await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
     await AskFSM.query.set()
 
@@ -116,8 +129,12 @@ def get_recipe_and_ingredients(data):
                 i += 1
     else:
         data['sent_recipes'] = []
-    recipe = tools.get_random_item_from_list(recipe_list)
-    data['sent_recipes'].append(recipe.id)
-    deb = data['sent_recipes']
-    ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
-    return tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
+
+    if recipe_list:
+        recipe = tools.get_random_item_from_list(recipe_list)
+        data['sent_recipes'].append(recipe.id)
+        deb = data['sent_recipes']
+        ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
+        return tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
+    else:
+        raise ValueError('Больше рецептов нет')
