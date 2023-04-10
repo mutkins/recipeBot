@@ -109,9 +109,11 @@ def get_recipe_and_ingredients(data):
     # Delete from the list recipes, existing in proxy data list
     if data.get('sent_recipes'):
         for sent_recipe_id in data.get('sent_recipes'):
-            for i in range(recipe_list.__len()__)):
+            i = 0
+            for recipe in recipe_list:
                 if sent_recipe_id == recipe.id:
                     recipe_list.pop(i)
+                i += 1
     else:
         data['sent_recipes'] = []
     recipe = tools.get_random_item_from_list(recipe_list)
