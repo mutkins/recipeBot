@@ -16,7 +16,6 @@ async def send_welcome(message: types.Message):
                          , reply_markup=keyboards.get_welcome_kb(), parse_mode="HTML")
 
 
-
 # You can use state '*' if you need to handle all states
 # @dp.message_handler(state='*', commands='cancel')
 async def cancel_handler(message: types.Message, state: FSMContext):
@@ -34,6 +33,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 
 
 def register_handlers(dp: Dispatcher):
+    # A1 user sends /help or smthg like it
     dp.register_message_handler(send_welcome, commands=['start', 'help', 'хелп'])
     dp.register_message_handler(cancel_handler, state='*', commands='отмена')
 
