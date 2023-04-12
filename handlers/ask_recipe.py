@@ -2,6 +2,8 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import logging
+import uuid
+import classes.RecipesDB
 import tools
 from classes import RecipesDB
 import keyboards
@@ -21,7 +23,7 @@ class AskFSM(StatesGroup):
 
 
 async def get_dish_types_list(message: types.Message):
-    log.debug(f"DEF ask_recipe, message {message.text}")
+    log.debug(f"DEF get_dish_types_list, message {message.text}")
     await message.answer("Выберите тип блюда. После выбора можно будет уточнить выборку запросом в свободной форме",
                          reply_markup=keyboards.get_dish_types_kb())
     await AskFSM.waiting_dish_type.set()
@@ -35,6 +37,7 @@ async def finish(message: types.Message, state: FSMContext):
 
 
 async def set_query_and_send_recipe(message: types.Message, state: FSMContext):
+    log.debug(f"DEF set_query_and_send_recipe, message {message.text}")
     async with state.proxy() as data:
         data['query'] = message.text
     await AskFSM.query.set()
@@ -42,6 +45,7 @@ async def set_query_and_send_recipe(message: types.Message, state: FSMContext):
 
 
 async def set_dish_type_and_send_recipe(message: types.Message, state: FSMContext):
+    log.debug(f"DEF set_dish_type_and_send_recipe, message {message.text}")
     async with state.proxy() as data:
         data['dish_type'] = message.text
     await AskFSM.dish_type.set()
@@ -49,6 +53,7 @@ async def set_dish_type_and_send_recipe(message: types.Message, state: FSMContex
 
 
 async def set_dish_type_query_and_send_recipe(message: types.Message, state: FSMContext):
+    log.debug(f"DEF set_dish_type_query_and_send_recipe, message {message.text}")
     async with state.proxy() as data:
         data['query'] = message.text
     await AskFSM.dish_type_query.set()
@@ -59,14 +64,26 @@ async def send_recipe(message: types.Message, state: FSMContext):
     log.debug(f"DEF send_recipe, message {message.text}")
     async with state.proxy() as data:
         try:
-            answ = get_recipe_and_ingredients(data)
+            recipe, ingredients_list = get_recipe_and_ingredients(data)
+            answ = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
+            await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
+            data['last_sent_recipe_id'] = recipe.id
         except ValueError as e:
             await message.answer(text=e.args[0])
             await common.cancel_handler(message, state)
-    await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
+
+
+async def save_recipe(message: types.Message, state: FSMContext):
+    log.debug(f'DEF save_recipe')
+    async with state.proxy() as data:
+        classes.RecipesDB.SavedRecipes(recipe_id=data['last_sent_recipe_id'], user_id=message.from_user.id)
+        await message.answer("Рецепт сохранен", reply_markup=keyboards.get_another_one_kb())
 
 
 def register_handlers(dp: Dispatcher):
+    # B1 user got a recipe and send /сохранить_рецепт to save it
+    dp.register_message_handler(save_recipe, commands=['сохранить_рецепт'], state='*')
+
     # A2 user sends /каталог to get dish_types list
     dp.register_message_handler(get_dish_types_list, commands=['каталог'], state=None)
     # A3 user sends dish_type to get a recipe with the dish_type
@@ -103,7 +120,7 @@ def get_recipe_and_ingredients(data):
         recipe = tools.get_random_item_from_list(recipe_list)
         data['sent_recipes'].append(recipe.id)
         ingredients_list = RecipesDB.get_ingredients_by_recipe(recipe)
-        return tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
+        return recipe, ingredients_list
     else:
         raise ValueError('Больше рецептов нет')
 

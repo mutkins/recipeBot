@@ -1,5 +1,5 @@
 import os
-
+import uuid
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from sqlalchemy import desc
 from snowball import Stemmer
-import tools
 from dotenv import load_dotenv
 
 Base = declarative_base()
@@ -28,7 +27,6 @@ class Recipe(Base):
     time_int = Column(Integer, nullable=True)
     bookmarks = Column(Integer, nullable=True)
     likes = Column(Integer, nullable=True)
-
 
     def add_item(self):
         session = DBSession()
@@ -53,10 +51,26 @@ class Ingredients(Base):
         session.close()
 
 
+class SavedRecipes(Base):
+    __tablename__ = 'SavedRecipes'
+    id = Column(String(250), primary_key=True)
+    recipe_id = Column(String(250), nullable=False)
+    user_id = Column(Integer, nullable=False)
+
+    def __init__(self, user_id, recipe_id):
+        self.user_id = user_id
+        self.recipe_id = recipe_id
+        self.id = str(uuid.uuid4())
+        session = DBSession()
+        session.expire_on_commit = False
+        session.add(self)
+        session.commit()
+        session.close()
+
+
+
 engine = create_engine(f"postgresql+psycopg2://postgres:{os.environ.get('postgres_pass')}@localhost:5432/recipeDB", echo=True)
 Base.metadata.create_all(engine)
-
-
 DBSession = sessionmaker(bind=engine)
 
 
@@ -120,7 +134,15 @@ def get_recipe_list_by_query_and_dish_type(query, dish_type):
     return recipe_list
 
 
+def get_saved_recipes_list_by_user_id(user_id):
+    session = DBSession()
+    saved_recipe_list = session.query(SavedRecipes).filter(SavedRecipes.user_id == user_id).all()
+    session.close()
+    return saved_recipe_list
 
 
-
-
+def get_recipe_by_id(recipe_id):
+    session = DBSession()
+    recipe = session.query(Recipe).filter(Recipe.id == recipe_id).one()
+    session.close()
+    return recipe

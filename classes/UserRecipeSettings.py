@@ -60,7 +60,3 @@ def create_user_recipe_settings_by_user_id(user_id, session: sqlalchemy.orm.sess
 def update_user_recipe_settings(session: sqlalchemy.orm.session.Session):
     session.commit()
     session.close()
-
-
-
-

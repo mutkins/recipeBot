@@ -22,6 +22,8 @@ def get_another_one_kb():
     kb.add(button)
     button = KeyboardButton('/отмена')
     kb.add(button)
+    button = KeyboardButton('/сохранить_рецепт')
+    kb.add(button)
     return kb
 
 
@@ -34,3 +36,10 @@ def get_welcome_kb():
     return kb
 
 
+def saved_recipes_actions():
+    kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    button = KeyboardButton('/удалить_всё')
+    kb.add(button)
+    button = KeyboardButton('/удалить_один')
+    kb.add(button)
+    return kb

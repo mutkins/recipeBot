@@ -11,7 +11,7 @@ from aiogram.types import ParseMode
 from aiogram.utils import executor
 from dotenv import load_dotenv
 from create_bot import dp
-from handlers import ask_recipe, settings, common
+from handlers import ask_recipe, settings, common, save_recipes
 
 # Configure logging
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
@@ -22,7 +22,9 @@ log = logging.getLogger("main")
 # Register handlers from handlers folder
 common.register_handlers(dp)
 settings.register_handlers(dp)
+save_recipes.register_handlers(dp)
 ask_recipe.register_handlers(dp)
+
 
 
 

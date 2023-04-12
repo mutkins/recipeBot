@@ -1,5 +1,4 @@
 import random
-import classes
 from classes.RecipesDB import Recipe
 from classes.RecipesDB import Ingredients
 
