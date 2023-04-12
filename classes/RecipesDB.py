@@ -80,17 +80,6 @@ def get_ingredients_by_recipe(recipe: Recipe):
     return ingredients_list
 
 
-def get_recipe1(query=None, dish_type=None):
-    if query and not dish_type:
-        recipe_list = get_recipe_list_by_query(query=query)
-    if dish_type and not query:
-        recipe_list = get_recipe_list_by_dish_type(dish_type=dish_type)
-    if query and dish_type:
-        recipe_list = get_recipe_list_by_query_and_dish_type(query=query, dish_type=dish_type)
-    recipe = tools.get_random_item_from_list(recipe_list)
-    return recipe
-
-
 def get_recipe_list(query=None, dish_type=None):
     if query and not dish_type:
         return get_recipe_list_by_query(query=query)
