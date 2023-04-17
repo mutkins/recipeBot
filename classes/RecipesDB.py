@@ -146,3 +146,13 @@ def get_recipe_by_id(recipe_id):
     recipe = session.query(Recipe).filter(Recipe.id == recipe_id).one()
     session.close()
     return recipe
+
+
+def delete_saved_recipes_by_user_id(user_id):
+    session = DBSession()
+    saved_recipe_list = session.query(SavedRecipes).filter(SavedRecipes.user_id == user_id).all()
+    for saved_recipe in saved_recipe_list:
+        session.delete(saved_recipe)
+    session.commit()
+    session.close()
+    return None

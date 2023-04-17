@@ -23,12 +23,9 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     Allow user to cancel any action
     """
     current_state = await state.get_state()
-    if current_state is None:
-        return
-
+    if current_state:
+        await state.finish()
     # Cancel state and inform user about it
-    await state.finish()
-    # And remove keyboard (just in case)
     await send_welcome(message)
 
 
