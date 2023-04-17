@@ -56,16 +56,27 @@ class SavedRecipes(Base):
     id = Column(String(250), primary_key=True)
     recipe_id = Column(String(250), nullable=False)
     user_id = Column(Integer, nullable=False)
+    recipe_title = Column(String(250), nullable=False)
 
-    def __init__(self, user_id, recipe_id):
+    def __init__(self, user_id, recipe_id, recipe_title):
         self.user_id = user_id
         self.recipe_id = recipe_id
         self.id = str(uuid.uuid4())
+        self.recipe_title = recipe_title
+        if not self.is_saved_recipe_exists():
+            session = DBSession()
+            session.expire_on_commit = False
+            session.add(self)
+            session.commit()
+            session.close()
+
+    def is_saved_recipe_exists(self):
         session = DBSession()
-        session.expire_on_commit = False
-        session.add(self)
-        session.commit()
-        session.close()
+        if session.query(SavedRecipes).filter(SavedRecipes.recipe_id == self.recipe_id).filter(SavedRecipes.user_id == self.user_id).first():
+            return True
+        else:
+            return False
+
 
 
 
@@ -153,6 +164,19 @@ def delete_saved_recipes_by_user_id(user_id):
     saved_recipe_list = session.query(SavedRecipes).filter(SavedRecipes.user_id == user_id).all()
     for saved_recipe in saved_recipe_list:
         session.delete(saved_recipe)
+    session.commit()
+    session.close()
+    return None
+
+
+def delete_saved_recipes_by_user_id_by_title(user_id, title):
+    session = DBSession()
+    # IF recipe title is too long, Tg will cut it for 140 smbls and add '...' (in keyboard)
+    # To prevent manage it, cut this string for 130 smbls, just in case
+    normalized_title = title[0:130]
+    saved_recipe = session.query(SavedRecipes).filter(SavedRecipes.user_id == user_id).\
+        filter(SavedRecipes.recipe_title.ilike(f'%{normalized_title}%')).first()
+    session.delete(saved_recipe)
     session.commit()
     session.close()
     return None

@@ -10,12 +10,10 @@ import tools
 
 class SavedFSM(StatesGroup):
     saved_recipes = State()
-    query = State()
-    dish_type = State()
-    dish_type_query = State()
+    waiting_recipe_to_delete = State()
 
 
-async def get_saved_recipes(message: types.Message, state: FSMContext):
+async def print_saved_recipes(message: types.Message, state: FSMContext):
     saved_recipes_list = RecipesDB.get_saved_recipes_list_by_user_id(message.from_user.id)
     if saved_recipes_list:
         for saved_recipe in saved_recipes_list:
@@ -34,6 +32,24 @@ async def delete_all_recipes(message: types.Message, state: FSMContext):
     await message.answer('Рецепты удалены', reply_markup=keyboards.saved_recipes_actions())
     await handlers.common.cancel_handler(message, state)
 
+
+async def get_recipes_to_delete(message: types.Message, state: FSMContext):
+    await message.answer('Выберите рецепт для удаления из сохраненных', reply_markup=keyboards.saved_recipes_list(message.from_user.id))
+    await SavedFSM.waiting_recipe_to_delete.set()
+
+
+async def delete_recipe_by_title(message: types.Message, state: FSMContext):
+    RecipesDB.delete_saved_recipes_by_user_id_by_title(user_id=message.from_user.id, title=message.text)
+    await message.answer('Рецепт удален', reply_markup=keyboards.saved_recipes_actions())
+    await handlers.common.cancel_handler(message, state)
+
+
 def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(get_saved_recipes, state=None, commands='мои_рецепты')
+    # B2 User send /мои_рецепты to get list of saved recipes
+    dp.register_message_handler(print_saved_recipes, state=None, commands='мои_рецепты')
+    # B3 User send /удалить_всё to delete all saved recipes
     dp.register_message_handler(delete_all_recipes, state=SavedFSM.saved_recipes, commands='удалить_всё')
+    # B4 User send /удалить_один get saved recipes list as a keyboard
+    dp.register_message_handler(get_recipes_to_delete, state=SavedFSM.saved_recipes, commands='удалить_один')
+    # B5 User send title of recipe to delete it
+    dp.register_message_handler(delete_recipe_by_title, state=SavedFSM.waiting_recipe_to_delete)

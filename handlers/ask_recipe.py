@@ -4,6 +4,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import logging
 import uuid
 import classes.RecipesDB
+import handlers.common
 import tools
 from classes import RecipesDB
 import keyboards
@@ -32,8 +33,7 @@ async def get_dish_types_list(message: types.Message):
 async def finish(message: types.Message, state: FSMContext):
     log.debug(f"DEF finish, message {message.text}")
     await message.answer(text="Удачной готовки!")
-    await state.finish()
-    await common.send_welcome(message)
+    await handlers.common.cancel_handler(message,state)
 
 
 async def set_query_and_send_recipe(message: types.Message, state: FSMContext):
@@ -68,6 +68,7 @@ async def send_recipe(message: types.Message, state: FSMContext):
             answ = tools.convert_recipe_and_ingr_obj_to_message(recipe, ingredients_list)
             await message.answer_photo(**answ, reply_markup=keyboards.get_another_one_kb())
             data['last_sent_recipe_id'] = recipe.id
+            data['last_sent_recipe_title'] = recipe.title
         except ValueError as e:
             await message.answer(text=e.args[0])
             await common.cancel_handler(message, state)
@@ -76,7 +77,7 @@ async def send_recipe(message: types.Message, state: FSMContext):
 async def save_recipe(message: types.Message, state: FSMContext):
     log.debug(f'DEF save_recipe')
     async with state.proxy() as data:
-        classes.RecipesDB.SavedRecipes(recipe_id=data['last_sent_recipe_id'], user_id=message.from_user.id)
+        classes.RecipesDB.SavedRecipes(recipe_id=data['last_sent_recipe_id'], user_id=message.from_user.id, recipe_title=data['last_sent_recipe_title'])
         await message.answer("Рецепт сохранен", reply_markup=keyboards.get_another_one_kb())
 
 
