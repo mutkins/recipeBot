@@ -10,7 +10,7 @@ pipeline {
             steps {
                 sh 'sudo python3 -m venv ./venv'
                 sh '. venv/bin/activate'
-                sh 'sudo apt get install libpq-dev'
+                sh 'sudo apt install libpq-dev'
                 sh 'pip install -r requirements.txt'
                    }
         }
