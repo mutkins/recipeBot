@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
        tgBot_id = credentials('recipe_bot_id')
+       postgres_pass = credentials('recipe_bot_postgres_pass')
     }
 
     stages {
