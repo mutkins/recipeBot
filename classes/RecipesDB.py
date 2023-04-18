@@ -78,8 +78,6 @@ class SavedRecipes(Base):
             return False
 
 
-
-
 engine = create_engine(f"postgresql+psycopg2://postgres:{os.environ.get('postgres_pass')}@localhost:5432/recipeDB", echo=True)
 Base.metadata.create_all(engine)
 DBSession = sessionmaker(bind=engine)
