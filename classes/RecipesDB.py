@@ -71,6 +71,7 @@ class SavedRecipes(Base):
             session.close()
 
     def is_saved_recipe_exists(self):
+        """searching saved recipe by recipe_id and user_id"""
         session = DBSession()
         result = bool(session.query(SavedRecipes).filter(SavedRecipes.recipe_id == self.recipe_id).filter(SavedRecipes.user_id == self.user_id).first())
         session.close()
