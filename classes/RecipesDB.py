@@ -72,10 +72,9 @@ class SavedRecipes(Base):
 
     def is_saved_recipe_exists(self):
         session = DBSession()
-        if session.query(SavedRecipes).filter(SavedRecipes.recipe_id == self.recipe_id).filter(SavedRecipes.user_id == self.user_id).first():
-            return True
-        else:
-            return False
+        result = bool(session.query(SavedRecipes).filter(SavedRecipes.recipe_id == self.recipe_id).filter(SavedRecipes.user_id == self.user_id).first())
+        session.close()
+        return result
 
 
 engine = create_engine(f"postgresql+psycopg2://postgres:{os.environ.get('postgres_pass')}@localhost:5432/recipeDB", echo=True)
