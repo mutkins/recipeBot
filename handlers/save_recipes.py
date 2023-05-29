@@ -47,7 +47,7 @@ async def delete_recipe_by_title(message: types.Message, state: FSMContext):
 
 def register_handlers(dp: Dispatcher):
     # B2 User send /мои_рецепты to get list of saved recipes
-    dp.register_message_handler(print_saved_recipes, commands=['мои_рецепты', 'saved_recipes'])
+    dp.register_message_handler(print_saved_recipes, commands=['мои_рецепты', 'saved_recipes'], state='*')
     # B3 User send /удалить_всё to delete all saved recipes
     dp.register_message_handler(delete_all_recipes, state=SavedFSM.saved_recipes, commands='удалить_всё')
     # B4 User send /удалить_один get saved recipes list as a keyboard
