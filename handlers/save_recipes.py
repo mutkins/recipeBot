@@ -1,7 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-import common
 import handlers.common
 from classes import RecipesDB
 import keyboards
@@ -15,7 +14,7 @@ class SavedFSM(StatesGroup):
 
 async def print_saved_recipes(message: types.Message, state: FSMContext):
     # Reset state if it exists (if user is in the process)
-    common.reset_state(message=message, state=state)
+    handlers.common.reset_state(message=message, state=state)
     saved_recipes_list = RecipesDB.get_saved_recipes_list_by_user_id(message.from_user.id)
     if saved_recipes_list:
         for saved_recipe in saved_recipes_list:
