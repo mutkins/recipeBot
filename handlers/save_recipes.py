@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-
+import common
 import handlers.common
 from classes import RecipesDB
 import keyboards
@@ -14,6 +14,8 @@ class SavedFSM(StatesGroup):
 
 
 async def print_saved_recipes(message: types.Message, state: FSMContext):
+    # Reset state if it exists (if user is in the process)
+    common.reset_state(message=message, state=state)
     saved_recipes_list = RecipesDB.get_saved_recipes_list_by_user_id(message.from_user.id)
     if saved_recipes_list:
         for saved_recipe in saved_recipes_list:
@@ -46,7 +48,7 @@ async def delete_recipe_by_title(message: types.Message, state: FSMContext):
 
 def register_handlers(dp: Dispatcher):
     # B2 User send /мои_рецепты to get list of saved recipes
-    dp.register_message_handler(print_saved_recipes, state=None, commands=['мои_рецепты', 'saved_recipes'])
+    dp.register_message_handler(print_saved_recipes, commands=['мои_рецепты', 'saved_recipes'])
     # B3 User send /удалить_всё to delete all saved recipes
     dp.register_message_handler(delete_all_recipes, state=SavedFSM.saved_recipes, commands='удалить_всё')
     # B4 User send /удалить_один get saved recipes list as a keyboard

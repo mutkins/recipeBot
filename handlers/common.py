@@ -5,6 +5,7 @@ import keyboards
 from create_bot import dp, bot
 import tools
 
+
 # @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
 
@@ -16,8 +17,6 @@ async def send_welcome(message: types.Message):
                          , reply_markup=keyboards.get_welcome_kb(), parse_mode="HTML")
 
 
-# You can use state '*' if you need to handle all states
-# @dp.message_handler(state='*', commands='cancel')
 async def cancel_handler(message: types.Message, state: FSMContext):
     """
     Allow user to cancel any action
@@ -27,6 +26,13 @@ async def cancel_handler(message: types.Message, state: FSMContext):
         await state.finish()
     # Cancel state and inform user about it
     await send_welcome(message)
+
+
+async def reset_state(message: types.Message, state: FSMContext):
+    # Cancel state if it exists
+    current_state = await state.get_state()
+    if current_state:
+        await state.finish()
 
 
 def register_handlers(dp: Dispatcher):

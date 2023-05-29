@@ -23,7 +23,9 @@ class AskFSM(StatesGroup):
     dish_type_query = State()
 
 
-async def get_dish_types_list(message: types.Message):
+async def get_dish_types_list(message: types.Message, state: FSMContext):
+    # Reset state if it exists (if user is in the process)
+    common.reset_state(message=message, state=state)
     log.debug(f"DEF get_dish_types_list, message {message.text}")
     await message.answer("Выберите тип блюда. После выбора можно будет уточнить выборку запросом в свободной форме",
                          reply_markup=keyboards.get_dish_types_kb())
@@ -86,7 +88,7 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(save_recipe, commands=['сохранить_рецепт'], state='*')
 
     # A2 user sends /каталог to get dish_types list
-    dp.register_message_handler(get_dish_types_list, commands=['каталог', 'catalog'], state=None)
+    dp.register_message_handler(get_dish_types_list, commands=['каталог', 'catalog'])
     # A3 user sends dish_type to get a recipe with the dish_type
     dp.register_message_handler(set_dish_type_and_send_recipe, state=AskFSM.waiting_dish_type)
     # A4 user got a recipe, but sends /еще_вариант to get another recipe with the same dish_type
