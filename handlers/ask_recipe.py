@@ -25,7 +25,7 @@ class AskFSM(StatesGroup):
 
 async def get_dish_types_list(message: types.Message, state: FSMContext):
     # Reset state if it exists (if user is in the process)
-    common.reset_state(message=message, state=state)
+    common.reset_state(state=state)
     log.debug(f"DEF get_dish_types_list, message {message.text}")
     await message.answer("Выберите тип блюда. После выбора можно будет уточнить выборку запросом в свободной форме",
                          reply_markup=keyboards.get_dish_types_kb())

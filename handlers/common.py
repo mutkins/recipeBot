@@ -18,17 +18,12 @@ async def send_welcome(message: types.Message):
 
 
 async def cancel_handler(message: types.Message, state: FSMContext):
-    """
-    Allow user to cancel any action
-    """
-    current_state = await state.get_state()
-    if current_state:
-        await state.finish()
+    reset_state(state=state)
     # Cancel state and inform user about it
     await send_welcome(message)
 
 
-async def reset_state(message: types.Message, state: FSMContext):
+async def reset_state(state: FSMContext):
     # Cancel state if it exists
     current_state = await state.get_state()
     if current_state:
@@ -38,6 +33,6 @@ async def reset_state(message: types.Message, state: FSMContext):
 def register_handlers(dp: Dispatcher):
     # A1 user sends /help or smthg like it
     dp.register_message_handler(send_welcome, commands=['start', 'help', 'хелп'])
-    dp.register_message_handler(cancel_handler, state='*', commands='отмена')
+    dp.register_message_handler(cancel_handler, state='*', commands=['cancel','отмена')
 
 
