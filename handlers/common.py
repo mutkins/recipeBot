@@ -33,6 +33,6 @@ async def reset_state(state: FSMContext):
 def register_handlers(dp: Dispatcher):
     # A1 user sends /help or smthg like it
     dp.register_message_handler(send_welcome, commands=['start', 'help', 'хелп'])
-    dp.register_message_handler(cancel_handler, state='*', commands=['cancel','отмена')
+    dp.register_message_handler(cancel_handler, state='*', commands=['cancel','отмена'])
 
 
