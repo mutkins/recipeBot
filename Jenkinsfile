@@ -3,6 +3,7 @@ pipeline {
     environment {
        tgBot_id = credentials('recipe_bot_id')
        postgres_pass = credentials('recipe_bot_postgres_pass')
+       CHAT_ID = credentials('my_chat_id')
     }
 
     stages {
@@ -20,4 +21,18 @@ pipeline {
                    }
         }
     }
+        post {
+    failure {
+    sh  ("""
+        curl -s -X POST https://api.telegram.org/bot${tgBot_id}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text="*${env.JOB_NAME}* FAILED ${env.BUILD_URL}"
+    """)
+    }
+    aborted {
+    sh  ("""
+        curl -s -X POST https://api.telegram.org/bot${tgBot_id}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text="*${env.JOB_NAME}* ABORTED ${env.BUILD_URL}"
+    """)
+    }
+
+        }
+
     }
