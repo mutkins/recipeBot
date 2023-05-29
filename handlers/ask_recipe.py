@@ -86,7 +86,7 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(save_recipe, commands=['сохранить_рецепт'], state='*')
 
     # A2 user sends /каталог to get dish_types list
-    dp.register_message_handler(get_dish_types_list, commands=['каталог'], state=None)
+    dp.register_message_handler(get_dish_types_list, commands=['каталог', 'catalog'], state=None)
     # A3 user sends dish_type to get a recipe with the dish_type
     dp.register_message_handler(set_dish_type_and_send_recipe, state=AskFSM.waiting_dish_type)
     # A4 user got a recipe, but sends /еще_вариант to get another recipe with the same dish_type
