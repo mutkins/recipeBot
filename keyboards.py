@@ -10,8 +10,6 @@ def get_dish_types_kb():
     for dish_type in dish_types:
         button = KeyboardButton(dish_type)
         kb.add(button)
-    button = KeyboardButton('/отмена')
-    kb.add(button)
     return kb
 
 
@@ -22,8 +20,6 @@ def get_another_one_kb():
     button = KeyboardButton('/сохранить_рецепт')
     kb.add(button)
     button = KeyboardButton('/ок')
-    kb.add(button)
-    button = KeyboardButton('/отмена')
     kb.add(button)
     return kb
 
@@ -43,8 +39,6 @@ def saved_recipes_actions():
     kb.add(button)
     button = KeyboardButton('/удалить_один')
     kb.add(button)
-    button = KeyboardButton('/отмена')
-    kb.add(button)
     return kb
 
 
@@ -54,6 +48,4 @@ def saved_recipes_list(user_id):
     for saved_recipe in saved_recipes:
         button = KeyboardButton(saved_recipe.recipe_title)
         kb.add(button)
-    button = KeyboardButton('/отмена')
-    kb.add(button)
     return kb
